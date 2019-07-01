@@ -1,14 +1,25 @@
-const express = require('express');
+const express = require('express'),
+    connectDB = require('./config/db'),
 
-const server = express();
+    server = express();
 
-server.get('/',(req,res)=>{
-     res.send("server start now ");
-})
+// connect DB
+connectDB();
+
+server.get('/', (req, res) => {
+    res.send("server start now ");
+})   
+
+// routes 
+server.use('/api/users', require('./routes/api/users'));
+server.use('/api/auth', require('./routes/api/auth'));
+server.use('/api/posts', require('./routes/api/posts'));
+server.use('/api/profile', require('./routes/api/profile'));
 
 
-const Port = process.env.PORT || 5000;
 
-server.listen(Port,  ()=>{
+const Port = process.env.PORT || 3000;
+
+server.listen(Port, () => {
     console.log(`server start at ${Port}`);
 })
