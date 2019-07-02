@@ -5,7 +5,8 @@ const mongoose = require('mongoose'),
     connectDB = async () => {
         try {
             await mongoose.connect(db, {
-                useNewUrlParser: true //meaning of this line
+                useNewUrlParser: true, //meaning of this line
+                useCreateIndex : true
             });
             console.log('database is connected ... ');
         } catch (err) {

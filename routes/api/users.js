@@ -1,9 +1,13 @@
 const express = require('express'),
     router = express.Router(),
+    bcrypt = require('bcryptjs'),
+    gravatar = require('gravatar'),
     {
         check,
         validationResult
-    } = require('express-validator');
+    } = require('express-validator'),
+    User = require('../../models/Users');
+
 
 // @routes Post  api/users
 // @des        Test route
@@ -17,7 +21,7 @@ router.post('/', [
     check('password', 'character length must be 6').isLength({
         min: 6
     })
-], (req, res) => {
+], async (req, res) => {
     // Finds the validation errors in this request and wraps them in an object with handy functions
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -25,8 +29,41 @@ router.post('/', [
             errors: errors.array()
         });
     }
-    console.log(req.body)
-    res.send("users routes");
+    const {
+        email,
+        name,
+        password
+    } = req.body
+    try {
+        let userData = await User.findOne({
+            email
+        });
+        if (userData) {
+            return res.status(400).send({
+                error: [{
+                    msg: 'User already exist'
+                }]
+            });
+        }
+        const avatar = gravatar.url(email, {
+            s: '200',
+            r: 'pg',
+            d: 'mm'
+        })
+        userData = new User({
+            name,
+            password,
+            email,
+            avatar
+        });
+        const salt = await bcrypt.genSalt(10);
+        userData.password = await bcrypt.hash(password, salt);
+        await userData.save();
+        res.send("user registered");
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).send('server error');
+    }
 })
 
 module.exports = router;
