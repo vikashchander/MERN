@@ -6,6 +6,9 @@ const express = require('express'),
 // connect DB
 connectDB();
 
+// Init middleware
+server.use(express.json({extended: false}));
+
 server.get('/', (req, res) => {
     res.send("server start now ");
 })   
