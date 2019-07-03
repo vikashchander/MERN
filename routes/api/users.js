@@ -1,6 +1,8 @@
 const express = require('express'),
     router = express.Router(),
+    config = require('config'),
     bcrypt = require('bcryptjs'),
+    jwt = require('jsonwebtoken'),
     gravatar = require('gravatar'),
     {
         check,
@@ -59,7 +61,23 @@ router.post('/', [
         const salt = await bcrypt.genSalt(10);
         userData.password = await bcrypt.hash(password, salt);
         await userData.save();
-        res.send("user registered");
+        //res.send("user registered");
+        const payload = {
+            userData: {
+                id: userData.id
+            }
+        }
+        jwt.sign(
+            payload,
+            config.get("jwtToken"), {
+                expiresIn: 36000
+            },
+            (err, token) => {
+                if (err) throw err;
+                res.status(200).json({
+                    token
+                })
+            });
     } catch (error) {
         console.log(error.message);
         res.status(500).send('server error');
