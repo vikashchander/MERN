@@ -41,7 +41,7 @@ router.post('/', [
             email
         });
         if (userData) {
-            return res.status(400).send({
+            return res.status(400).json({
                 error: [{
                     msg: 'User already exist'
                 }]
